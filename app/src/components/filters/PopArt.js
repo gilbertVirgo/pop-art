@@ -1,72 +1,91 @@
 import React, {useEffect, useState} from "react";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
+import Modal from "react-bootstrap/Modal";
+import Spinner from "react-bootstrap/Spinner";
 
-import {hexToRGB, applyColorToPixel} from "../../functions";
+import {GithubPicker} from "react-color";
+
+import axios from "axios";
 
 const defaults = {
-    color1: "#63ffdd", // light
-    color2: "#232185", // dark
+    color1: "#232185", // light 
+    color2: "#63ffdd", // dark
     range: "50"
 }
 
-const PopArt = ({image, context}) => {
-    const {width, height} = image;
-
+const PopArt = ({image, onChange}) => {
     const [color1, setColor1] = useState(defaults.color1);
     const [color2, setColor2] = useState(defaults.color2);
     const [range, setRange] = useState(defaults.range);
+    const [frames, setFrames] = useState(null);
+    const [frame, setFrame] = useState(null);
 
+    const [loading, setLoading] = useState(false);
 
-    const apply = () => {
-        const imageData = context.getImageData(0, 0, width, height);
+    const getIndex = (range, frames) => Math.ceil(range * (frames.length / 100));
 
-        let {data} = imageData;
+    const request = async () => {
+        if(color1 && color2) {
+            setLoading(true);
 
-        let index;
-        for(index = 0; index < data.length; index += 4) {
-            const [r, g, b, a] = data.slice(index, index + 3);
+            var formData = new FormData();
+            formData.append("image", image);
+            formData.append("color1", color1);
+            formData.append("color2", color2);
 
-            // (255 + 255 + 255) / 2
-            if((r + g + b) > ((765 / 100) * +range)) {
-                data = applyColorToPixel({
-                    data,
-                    rgba: hexToRGB(color1), 
-                    index
-                });
-            } else {
-                data = applyColorToPixel({
-                    data,
-                    rgba: hexToRGB(color2), 
-                    index
-                });
-            }
+            const {data: {frames}} = await axios.post('/filter/popart', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            setLoading(false);
+
+            setFrames(frames);
+
+            onChange(frames[range]);
         }
-
-        context.putImageData(imageData, 0, 0);
-    }
+    };
 
     useEffect(() => {
-        context.drawImage(image, 0, 0, width, height);
-        apply();
-    }, [image, color1, color2, range, height]);
+        (async function() {
+            await request()
+        })();
+    }, [image, color1, color2]);
+
+    useEffect(() => {
+        if(frames) setFrame(frames[getIndex(range, frames)]);
+    }, [frames, range]);
+
+    useEffect(() => {
+        if(frame) onChange(frame);
+    }, [frame])
 
     return (<>
         <Form.Group>
             <Form.Row>
                 <Col>
                     <Form.Label>Color 1</Form.Label>
-                    <Form.Control 
-                        value={color1}
+                    {/* <Form.Control 
+                        defaultValue={color1}
                         type="color"
-                        onChange={({target: {value}}) => setColor1(value)}/>
+                        onBlur={({target: {value}}) => setColor1(value)}/> */}
+                    <GithubPicker
+                        width={212}
+                        color={color1}
+                        onChangeComplete={({hex}) => setColor1(hex)}/>
                 </Col>
                 <Col>
                     <Form.Label>Color 2</Form.Label>
-                    <Form.Control 
-                        value={color2}
+                    {/* <Form.Control 
+                        defaultValue={color2}
                         type="color"
-                        onChange={({target: {value}}) => setColor2(value)}/>
+                        onBlur={({target: {value}}) => setColor2(value)}/> */}
+                    <GithubPicker
+                        width={212}
+                        color={color2}
+                        onChangeComplete={({hex}) => setColor2(hex)}/>
                 </Col>
             </Form.Row>
         </Form.Group>
@@ -74,8 +93,15 @@ const PopArt = ({image, context}) => {
             <Form.Control 
                 value={range}
                 type="range"
-                onChange={({target: {value}}) => setRange(value)}/>
+                className="custom-range"
+                onChange={({target: {value}}) => setRange(+value)}/>
         </Form.Group>
+        <Modal show={loading}>
+            <Modal.Body style={{textAlign: "center"}}>
+                <h5>Loading filter...</h5>
+                <Spinner variant="primary" animation="grow" />
+            </Modal.Body>
+        </Modal>
     </>)
 }
 
