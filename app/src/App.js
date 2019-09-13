@@ -4,6 +4,7 @@ import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import { FaDownload } from 'react-icons/fa';
+import MetaTags from "react-meta-tags";
 
 import Toolbar from "./components/Toolbar";
 
@@ -32,13 +33,19 @@ const App = () => {
           <a download={`popart-${Date.now()}.png`} href={image} style={{display: "inline-block", marginRight: "15px"}}>
             <Button variant="dark">Download <FaDownload/></Button>
           </a>
-          <FacebookShareButton url={window.location.href} style={{display: "inline-block", marginRight: "15px"}} quote="I just created a thing" hashtag="#filter">
+          <FacebookShareButton url="http://filter.gilbertvirgo.com" style={{display: "inline-block", marginRight: "15px"}} quote="I just created a thing" hashtag="#filter">
             <FacebookIcon size="30px" round />
           </FacebookShareButton>
-          <TwitterShareButton url={window.location.href} style={{display: "inline-block", marginRight: "15px"}} title="I just created a thing">
+          <TwitterShareButton url="http://filter.gilbertvirgo.com" style={{display: "inline-block", marginRight: "15px"}} title="I just created a thing">
             <TwitterIcon size="30px" round />
           </TwitterShareButton>
         </ButtonGroup>
+
+        <MetaTags>
+            <title>Page 1</title>
+            <meta property="og:title" content="Filter | Gilbert Virgo" />
+            <meta property="og:image" content={image} />
+          </MetaTags>
       </>)}
     </Container>
   );
