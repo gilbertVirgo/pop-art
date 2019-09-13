@@ -1,38 +1,41 @@
-import React, {useRef, useEffect, useState, useGlobal} from "reactn";
+import React, {useRef, useEffect, useState} from "react";
 
-const Preview = () => {
+const MAX_WIDTH = 500;
+
+const Preview = ({image, onLoad}) => {
     const canvas = useRef(null);
 
-    const [context, setContext] = useState(null);
-    const [toolbar, setToolbar] = useGlobal("toolbar");
+    const [screenWidth, setScreenWidth] = useState(image.width);
+    const [screenHeight] = useState(image.height);
 
-    const loadImage = () => {
-        if(context) {
-            console.log({context, image: toolbar.image});
+    const setupCanvas = canvas => {
+        const context = canvas.getContext("2d");
 
-            context.putImageData(toolbar.image, 300, 150);
-        }
+        context.imageSmoothingEnabled = false;
+        context.mozImageSmoothingEnabled = false;
+        context.webkitImageSmoothingEnabled = false;
+        context.msImageSmoothingEnabled = false;
+
+        return context;
     }
 
     useEffect(() => {
-        if(canvas.current !== null) {
-            setContext(canvas.current.getContext("2d"));   
-        }    
-    }, []); 
+        const getWidth = () => (window.innerWidth > 500) ? 500 : window.innerWidth;
+
+        setScreenWidth(getWidth());
+
+        window.addEventListener("resize", () => setScreenWidth(getWidth()));
+    }, []);  
 
     useEffect(() => {
-        // fix this stuff never getting fired
-        console.log("Effecting");
+        if(canvas.current !== null) {
+            const context = setupCanvas(canvas.current);
 
-        if(toolbar && toolbar.image){
-            console.log("Loading image");
-            loadImage();
+            onLoad(context); 
         }
-    }, [toolbar]);
+    }, [canvas]);
 
-    return (
-        <canvas ref={canvas}></canvas>
-    )
+    return <canvas style={{width: image.width, height: image.height}} width={image.width} height={image.height} ref={canvas}></canvas>;
 }
 
 export default Preview;
