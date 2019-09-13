@@ -35,7 +35,7 @@ const Preview = ({image, onLoad}) => {
         }
     }, [canvas]);
 
-    return <canvas style={{width: image.width, height: image.height}} width={image.width} height={image.height} ref={canvas}></canvas>;
+    return <canvas style={{width: "100%", maxWidth: image.width, maxHeight: image.height}} width={image.width} height={image.height} ref={canvas}></canvas>;
 }
 
 export default Preview;
