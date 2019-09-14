@@ -33,10 +33,10 @@ const App = () => {
           <a download={`popart-${Date.now()}.png`} href={image} style={{display: "inline-block", marginRight: "15px"}}>
             <Button variant="dark">Download <FaDownload/></Button>
           </a>
-          <FacebookShareButton url="http://filter.gilbertvirgo.com" style={{display: "inline-block", marginRight: "15px"}} quote="I just created a thing" hashtag="#filter">
+          <FacebookShareButton url="http://filter.gilbertvirgo.com" style={{display: "inline-block", marginRight: "15px"}} hashtag="#filter">
             <FacebookIcon size="30px" round />
           </FacebookShareButton>
-          <TwitterShareButton url="http://filter.gilbertvirgo.com" style={{display: "inline-block", marginRight: "15px"}} title="I just created a thing">
+          <TwitterShareButton url="http://filter.gilbertvirgo.com" style={{display: "inline-block", marginRight: "15px"}}>
             <TwitterIcon size="30px" round />
           </TwitterShareButton>
         </ButtonGroup>
