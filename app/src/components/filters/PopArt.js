@@ -44,7 +44,7 @@ const PopArt = ({image, onChange}) => {
 
             setFrames(frames);
 
-            onChange(frames[range]);
+            onChange(frames[getIndex(range, frames)]);
         }
     };
 
