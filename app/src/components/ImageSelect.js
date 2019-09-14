@@ -1,10 +1,7 @@
 import React, {useState} from "react";
 
-// import loadImage from "../load-image";
-// import "../load-image-exif";
+import imageCompression from "browser-image-compression";
 
-// import "../load-image-orientation";
-import loadImage from "../loadimage/index.js"
 import Form from "react-bootstrap/Form";
 
 const ImageSelect = ({onChange}) => {
@@ -13,7 +10,9 @@ const ImageSelect = ({onChange}) => {
     const handleChange = async ({target: {files: [file]}}) => {
         setName(file.name);
 
-        if(typeof onChange === "function") onChange(file)
+        const image = await imageCompression(file, {maxSizeMB: 0.5});
+
+        if(typeof onChange === "function") onChange(image)
     }
 
     return (<>
