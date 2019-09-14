@@ -4,7 +4,7 @@ import Col from "react-bootstrap/Col";
 import Modal from "react-bootstrap/Modal";
 import Spinner from "react-bootstrap/Spinner";
 
-import {GithubPicker} from "react-color";
+import {CompactPicker} from "react-color";
 
 import axios from "axios";
 
@@ -79,7 +79,7 @@ const PopArt = ({image, onChange}) => {
                         defaultValue={color1}
                         type="color"
                         onBlur={({target: {value}}) => setColor1(value)}/> */}
-                    <GithubPicker
+                    <CompactPicker
                         width={212}
                         color={color1}
                         onChangeComplete={({hex}) => setColor1(hex)}/>
@@ -90,7 +90,7 @@ const PopArt = ({image, onChange}) => {
                         defaultValue={color2}
                         type="color"
                         onBlur={({target: {value}}) => setColor2(value)}/> */}
-                    <GithubPicker
+                    <CompactPicker
                         width={212}
                         color={color2}
                         onChangeComplete={({hex}) => setColor2(hex)}/>
