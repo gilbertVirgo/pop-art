@@ -21,6 +21,7 @@ const PopArt = ({image, onChange}) => {
     const [frames, setFrames] = useState(null);
     const [frame, setFrame] = useState(null);
 
+    const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
     const getIndex = (range, frames) => Math.ceil(range * (frames.length / 100));
@@ -34,17 +35,23 @@ const PopArt = ({image, onChange}) => {
             formData.append("color1", color1);
             formData.append("color2", color2);
 
-            const {data: {frames}} = await axios.post('/filter/popart', formData, {
+            const {data: {frames, success, error}} = await axios.post('/filter/popart', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
 
-            setLoading(false);
+            console.log({frames, success, error});
 
-            setFrames(frames);
+            if(success) {
+                setLoading(false);
 
-            onChange(frames[getIndex(range, frames)]);
+                setFrames(frames);
+
+                onChange(frames[getIndex(range, frames)]);
+            } else {
+                setError(error);
+            }
         }
     };
 
@@ -63,6 +70,7 @@ const PopArt = ({image, onChange}) => {
     }, [frame])
 
     return (<>
+        {error && <p className="text-danger" style={{textAlign: "center"}}>{error}</p>}
         <Form.Group>
             <Form.Row>
                 <Col>
