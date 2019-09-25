@@ -55,8 +55,7 @@ public class Threshold {
 						for (int x = 0; x < buffer.getWidth(); x++) {
 							int pixel = buffer.getRGB(x, y);
 
-							int a = (pixel >> 24) & 0xff, r = (pixel >> 16) & 0xff, g = (pixel >> 8) & 0xff,
-									b = (pixel) & 0xff;
+							int r = (pixel >> 16) & 0xff, g = (pixel >> 8) & 0xff, b = (pixel) & 0xff;
 
 							int sum = r + g + b;
 

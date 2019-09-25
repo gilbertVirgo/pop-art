@@ -1,14 +1,12 @@
 require("dotenv").config();
 
 const express = require("express");
-const fs = require("fs");
-const {spawn, exec} = require('child_process');
-const randomstring = require("randomstring");
+const {exec} = require('child_process');
 
 const router = express.Router();
 
-const runFilter = ({path, color1, color2}) => new Promise((resolve, reject) => {
-    const cmd = exec(`java backend.v2.Threshold "${path}" "${color1}" "${color2}"`);
+const runFilter = ({path}) => new Promise((resolve, reject) => {
+    const cmd = exec(`java backend.v2.ThresholdMap "${path}"`);
 
     let output = "";
 
@@ -30,12 +28,14 @@ const runFilter = ({path, color1, color2}) => new Promise((resolve, reject) => {
     });
 });
 
-router.post("/popart", async ({files: {image}, body: {color1, color2}}, res) => {
+router.post("/popart", async ({files: {image}}, res) => {
     try {
         const path = `${__dirname}/../../${image.tempFilePath}`;
 
         // Root folder
-        const id = await runFilter({path, color1, color2});
+        const startTime = Date.now();
+        const id = await runFilter({path});
+        console.log("Finished task. Completed in " + ((Date.now() - startTime) / 1000) + " seconds.");
 
         res.json({success: true, id, length: process.env.FRAMES_LENGTH});
     } catch(error) {

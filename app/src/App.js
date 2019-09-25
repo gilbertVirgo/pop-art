@@ -38,7 +38,7 @@ const App = () => {
 				onImage={setImage} 
 				onFrame={setFrame}/>}
 
-			<canvas ref={canvas} width={500} />
+			<canvas style={{maxWidth: "500px", width: "100%"}} ref={canvas} />
 			
 			<ButtonGroup style={{display: "block", margin: "15px 0"}}>
 				{frame && <a download={`popart-${Date.now()}.png`} href={frame} style={{display: "inline-block", marginRight: "15px"}}>

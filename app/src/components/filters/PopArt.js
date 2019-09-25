@@ -7,6 +7,7 @@ import Spinner from "react-bootstrap/Spinner";
 import {CompactPicker} from "react-color";
 
 import axios from "axios";
+import LoadingModal from "../LoadingModal";
 
 const defaults = {
     highlights: "#eeffdd", // light 
@@ -18,21 +19,28 @@ const PopArt = ({context, image, onChange}) => {
     const [highlights, setHighlights] = useState(defaults.highlights);
     const [shadows, setShadows] = useState(defaults.shadows);
     const [range, setRange] = useState(defaults.range);
-    const [frames, setFrames] = useState(null);
+    const [map, setMap] = useState(null);
+    const [length, setLength] = useState(null);
 
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    const getIndex = (range, frames) => Math.ceil(range * (frames.length / 100));
+    const getIndex = (range, length) => Math.ceil(range * (length / 100));
 
-    const renderFrame = frame => {
+    const renderFrame = (map, frameIndex) => {
         const {canvas} = context;
-        const ar = frame.width / frame.height;
 
-        canvas.height = canvas.width / ar;
+        context.clearRect(0, 0, canvas.width, canvas.height);
 
         context.save();
-        context.drawImage(frame, 0, 0, canvas.width, canvas.height);
+
+        let x = frameIndex * canvas.width;
+
+        context.drawImage(
+            map, 
+            x, 0, canvas.width, canvas.height, // Relative to map
+            0, 0, canvas.width, canvas.height     
+        );
 
         // set composite mode
         context.globalCompositeOperation = "source-in";
@@ -54,32 +62,30 @@ const PopArt = ({context, image, onChange}) => {
     const request = async () => {
         setLoading(true);
 
-        var formData = new FormData();
+        const startTime = Date.now();
+
+        const formData = new FormData();
         formData.append("image", image);
 
         let {data: {id, length, success, error}} = await axios.post('/api/v2/filter/popart', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
+            headers: { 'Content-Type': 'multipart/form-data' }
         });
 
-        const images = Array(+length).fill().map((_, index) => {
-            return new Promise(resolve => {
-                let image = new Image();
-                image.onload = () => resolve(image);
-                image.src = `/images/${id}/${index}.png`;
-            });
+        console.log("Finished. Took ", (Date.now() - startTime) / 1000, " seconds.");
+
+        let map = await new Promise(resolve => {
+            let image = new Image();
+            image.onload = () => resolve(image);
+            image.src = `/images/${id}.png`;
         });
 
         if(success) {
-            // Await image load
-            let frames = await Promise.all(images);
-
-            console.log({frames});
+            context.canvas.width = map.width / length;
+            context.canvas.height = map.height;
 
             setLoading(false);
-
-            setFrames(frames);
+            setMap(map);
+            setLength(length);
         } else {
             setError(error);
         }
@@ -92,11 +98,11 @@ const PopArt = ({context, image, onChange}) => {
     }, [image]);
 
     useEffect(() => {
-        if(frames) {
-            const frame = frames[getIndex(range, frames)];
-            renderFrame(frame);
+        if(map) {
+            const frameIndex = getIndex(range, length);
+            renderFrame(map, frameIndex);
         }
-    }, [frames, range, highlights, shadows]);
+    }, [map, range, highlights, shadows]);
 
     return (<>
         {error && <p className="text-danger" style={{textAlign: "center"}}>{error}</p>}
@@ -104,25 +110,27 @@ const PopArt = ({context, image, onChange}) => {
             <Form.Row>
                 <Col>
                     <Form.Label>Highlights</Form.Label>
-                    {/* <Form.Control 
+                    <Form.Control 
                         defaultValue={highlights}
                         type="color"
-                        onBlur={({target: {value}}) => setHighlights(value)}/> */}
-                    <CompactPicker
+                        className="custom-color-input"
+                        onBlur={({target: {value}}) => setHighlights(value)}/>
+                    {/* <CompactPicker
                         width={212}
                         color={highlights}
-                        onChangeComplete={({hex}) => setHighlights(hex)}/>
+                        onChangeComplete={({hex}) => setHighlights(hex)}/> */}
                 </Col>
                 <Col>
                     <Form.Label>Shadows</Form.Label>
-                    {/* <Form.Control 
+                    <Form.Control 
                         defaultValue={shadows}
                         type="color"
-                        onBlur={({target: {value}}) => setShadows(value)}/> */}
-                    <CompactPicker
+                        className="custom-color-input"
+                        onBlur={({target: {value}}) => setShadows(value)}/>
+                    {/* <CompactPicker
                         width={212}
                         color={shadows}
-                        onChangeComplete={({hex}) => setShadows(hex)}/>
+                        onChangeComplete={({hex}) => setShadows(hex)}/> */}
                 </Col>
             </Form.Row>
         </Form.Group>
@@ -133,12 +141,7 @@ const PopArt = ({context, image, onChange}) => {
                 className="custom-range"
                 onChange={({target: {value}}) => setRange(+value)}/>
         </Form.Group>
-        <Modal show={loading}>
-            <Modal.Body style={{textAlign: "center"}}>
-                <h5>Loading filter...</h5>
-                <Spinner variant="primary" animation="grow" />
-            </Modal.Body>
-        </Modal>
+        <LoadingModal show={loading} message="Running filter"/>
     </>)
 }
 
