@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Threshold",
+            "request": "launch",
+            "mainClass": "backend.v2.Threshold",
+            "projectName": "pop-art_63f91926"
+        }
+    ]
+}
