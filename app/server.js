@@ -5,7 +5,9 @@ const app = express();
 
 const fileUpload = require("express-fileupload");
 app.use(fileUpload({
-  limits: { fileSize: 50 * 1024 * 1024 },
+  limits: { fileSize: 12 * 1024 * 1024 }, // 12 MB
+  useTempFiles : true,
+  tempFileDir : './tmp/'
 }));
 
 
@@ -16,9 +18,18 @@ const path = require('path');
 app.use(express.static(path.join(__dirname, 'build')));
 
 // Routes
-app.use("/filter", require("./router"));
+app.use("/api/v1/filter", require("./backend/v1/router"));
+app.use("/api/v2/filter", require("./backend/v2/router"));
 
-app.get('/*', function(req, res) {
+app.get("/images/:id/:index", async ({params: {id, index}}, res) => {
+  //const check = str => !!str.match(/^[a-z0-9]+$/i);
+  const check = str => !str.includes("..");
+
+  if(check(id) && check(index)) res.sendFile(path.join(__dirname, "tmp", id, index));
+  else res.status(400).json({success: false, error: "Invalid file path"});
+})
+
+app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 

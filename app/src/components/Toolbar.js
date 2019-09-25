@@ -3,17 +3,13 @@ import Form from "react-bootstrap/Form";
 import ImageSelect from "./ImageSelect";
 import Filter from "./Filter";
 
-const Toolbar = ({onChange}) => {
-    const [image, setImage] = useState(null);
-
-    return (
-        <Form>
-            <Form.Group>
-                <ImageSelect onChange={value => setImage(value)}/>
-            </Form.Group>
-            {image && <Filter.PopArt image={image} onChange={image => onChange(image)}/>}
-        </Form>
-    )
-}
+const Toolbar = ({image, context, onImage, onFrame}) => (
+    <Form>
+        <Form.Group>
+            <ImageSelect onChange={onImage}/>
+        </Form.Group>
+        {(context && image) && <Filter.PopArt context={context} image={image} onChange={onFrame}/>}
+    </Form>
+);
 
 export default Toolbar;

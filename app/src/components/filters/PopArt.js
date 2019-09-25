@@ -9,49 +9,79 @@ import {CompactPicker} from "react-color";
 import axios from "axios";
 
 const defaults = {
-    color1: "#232185", // light 
-    color2: "#63ffdd", // dark
+    highlights: "#eeffdd", // light 
+    shadows: "#11331e", // dark
     range: "50"
 }
 
-const PopArt = ({image, onChange}) => {
-    const [color1, setColor1] = useState(defaults.color1);
-    const [color2, setColor2] = useState(defaults.color2);
+const PopArt = ({context, image, onChange}) => {
+    const [highlights, setHighlights] = useState(defaults.highlights);
+    const [shadows, setShadows] = useState(defaults.shadows);
     const [range, setRange] = useState(defaults.range);
     const [frames, setFrames] = useState(null);
-    const [frame, setFrame] = useState(null);
 
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
     const getIndex = (range, frames) => Math.ceil(range * (frames.length / 100));
 
+    const renderFrame = frame => {
+        const {canvas} = context;
+        const ar = frame.width / frame.height;
+
+        canvas.height = canvas.width / ar;
+
+        context.save();
+        context.drawImage(frame, 0, 0, canvas.width, canvas.height);
+
+        // set composite mode
+        context.globalCompositeOperation = "source-in";
+
+        // draw color
+        context.fillStyle = shadows;
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        context.globalCompositeOperation = "destination-over";
+
+        context.fillStyle = highlights;
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.restore();
+
+        // For later download
+        onChange(canvas.toDataURL("image/png"));
+    }
+
     const request = async () => {
-        if(color1 && color2) {
-            setLoading(true);
+        setLoading(true);
 
-            var formData = new FormData();
-            formData.append("image", image);
-            formData.append("color1", color1);
-            formData.append("color2", color2);
+        var formData = new FormData();
+        formData.append("image", image);
 
-            const {data: {frames, success, error}} = await axios.post('/filter/popart', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-
-            console.log({frames, success, error});
-
-            if(success) {
-                setLoading(false);
-
-                setFrames(frames);
-
-                onChange(frames[getIndex(range, frames)]);
-            } else {
-                setError(error);
+        let {data: {id, length, success, error}} = await axios.post('/api/v2/filter/popart', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
             }
+        });
+
+        const images = Array(+length).fill().map((_, index) => {
+            return new Promise(resolve => {
+                let image = new Image();
+                image.onload = () => resolve(image);
+                image.src = `/images/${id}/${index}.png`;
+            });
+        });
+
+        if(success) {
+            // Await image load
+            let frames = await Promise.all(images);
+
+            console.log({frames});
+
+            setLoading(false);
+
+            setFrames(frames);
+        } else {
+            setError(error);
         }
     };
 
@@ -59,41 +89,40 @@ const PopArt = ({image, onChange}) => {
         (async function() {
             await request()
         })();
-    }, [image, color1, color2]);
+    }, [image]);
 
     useEffect(() => {
-        if(frames) setFrame(frames[getIndex(range, frames)]);
-    }, [frames, range]);
-
-    useEffect(() => {
-        if(frame) onChange(frame);
-    }, [frame])
+        if(frames) {
+            const frame = frames[getIndex(range, frames)];
+            renderFrame(frame);
+        }
+    }, [frames, range, highlights, shadows]);
 
     return (<>
         {error && <p className="text-danger" style={{textAlign: "center"}}>{error}</p>}
         <Form.Group>
             <Form.Row>
                 <Col>
-                    <Form.Label>Color 1</Form.Label>
+                    <Form.Label>Highlights</Form.Label>
                     {/* <Form.Control 
-                        defaultValue={color1}
+                        defaultValue={highlights}
                         type="color"
-                        onBlur={({target: {value}}) => setColor1(value)}/> */}
+                        onBlur={({target: {value}}) => setHighlights(value)}/> */}
                     <CompactPicker
                         width={212}
-                        color={color1}
-                        onChangeComplete={({hex}) => setColor1(hex)}/>
+                        color={highlights}
+                        onChangeComplete={({hex}) => setHighlights(hex)}/>
                 </Col>
                 <Col>
-                    <Form.Label>Color 2</Form.Label>
+                    <Form.Label>Shadows</Form.Label>
                     {/* <Form.Control 
-                        defaultValue={color2}
+                        defaultValue={shadows}
                         type="color"
-                        onBlur={({target: {value}}) => setColor2(value)}/> */}
+                        onBlur={({target: {value}}) => setShadows(value)}/> */}
                     <CompactPicker
                         width={212}
-                        color={color2}
-                        onChangeComplete={({hex}) => setColor2(hex)}/>
+                        color={shadows}
+                        onChangeComplete={({hex}) => setShadows(hex)}/>
                 </Col>
             </Form.Row>
         </Form.Group>
