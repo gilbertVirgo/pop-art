@@ -1,10 +1,6 @@
 import React, {useEffect, useState} from "react";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
-import Modal from "react-bootstrap/Modal";
-import Spinner from "react-bootstrap/Spinner";
-
-import {CompactPicker} from "react-color";
 
 import axios from "axios";
 import LoadingModal from "../LoadingModal";
@@ -115,10 +111,6 @@ const PopArt = ({context, image, onChange}) => {
                         type="color"
                         className="custom-color-input"
                         onBlur={({target: {value}}) => setHighlights(value)}/>
-                    {/* <CompactPicker
-                        width={212}
-                        color={highlights}
-                        onChangeComplete={({hex}) => setHighlights(hex)}/> */}
                 </Col>
                 <Col>
                     <Form.Label>Shadows</Form.Label>
@@ -127,10 +119,6 @@ const PopArt = ({context, image, onChange}) => {
                         type="color"
                         className="custom-color-input"
                         onBlur={({target: {value}}) => setShadows(value)}/>
-                    {/* <CompactPicker
-                        width={212}
-                        color={shadows}
-                        onChangeComplete={({hex}) => setShadows(hex)}/> */}
                 </Col>
             </Form.Row>
         </Form.Group>
