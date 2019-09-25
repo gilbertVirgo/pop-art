@@ -110,6 +110,7 @@ const PopArt = ({context, image, onChange}) => {
                     className="custom-control-input" 
                     id="compositeSwitch"/>
                 <label className="custom-control-label" htmlFor="compositeSwitch">Show composite</label>
+                <p className="text-muted small" style={{marginTop: "10px"}}>This will combine all the different frames into one composite image.</p>
             </div>
         </Form.Group>
 

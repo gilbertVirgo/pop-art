@@ -53,8 +53,16 @@ const ImageSelect = ({onChange}) => {
 
     return (<>
         <Form.Group>
-            <Form.Check checked={compress} onChange={({target: {checked}}) => setCompress(checked)} label="Compress before upload"/>
-            <p className="text-muted small" style={{marginTop: "10px"}}>Compression will make the process faster, but significantly reduce the quality of the resulting image</p>
+            <div className="custom-control custom-switch">
+                <input 
+                    checked={compress} 
+                    onChange={({target: {checked}}) => setCompress(checked)} 
+                    type="checkbox" 
+                    className="custom-control-input" 
+                    id="compressSwitch"/>
+                <label className="custom-control-label" htmlFor="compressSwitch">Compress before upload</label>
+                <p className="text-muted small" style={{marginTop: "10px"}}>Compression will make the process faster, but significantly reduce the quality of the resulting image</p>
+            </div>
         </Form.Group>
         <Form.Group className="custom-file">
             <Form.Control
