@@ -1,10 +1,7 @@
 import React, {useEffect, useState} from "react";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
-import Modal from "react-bootstrap/Modal";
-import Spinner from "react-bootstrap/Spinner";
-
-import {CompactPicker} from "react-color";
+import LoadingModal from "../LoadingModal";
 
 import axios from "axios";
 
@@ -23,7 +20,8 @@ const PopArt = ({context, image, onChange}) => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    const getIndex = (range, frames) => Math.ceil(range * (frames.length / 100));
+    // frames.length - 1 to prevent out of bounds error
+    const getIndex = (range, frames) => Math.floor(range * ((frames.length - 1) / 100));
 
     const renderFrame = frame => {
         const {canvas} = context;
@@ -108,7 +106,7 @@ const PopArt = ({context, image, onChange}) => {
                         defaultValue={highlights}
                         type="color"
                         className="custom-color-input"
-                        onBlur={({target: {value}}) => setHighlights(value)}/>
+                        onChange={({target: {value}}) => setHighlights(value)}/>
                 </Col>
                 <Col>
                     <Form.Label>Shadows</Form.Label>
@@ -116,7 +114,7 @@ const PopArt = ({context, image, onChange}) => {
                         defaultValue={shadows}
                         type="color"
                         className="custom-color-input"
-                        onBlur={({target: {value}}) => setShadows(value)}/>
+                        onChange={({target: {value}}) => setShadows(value)}/>
                 </Col>
             </Form.Row>
         </Form.Group>
