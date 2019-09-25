@@ -104,25 +104,19 @@ const PopArt = ({context, image, onChange}) => {
             <Form.Row>
                 <Col>
                     <Form.Label>Highlights</Form.Label>
-                    {/* <Form.Control 
+                    <Form.Control 
                         defaultValue={highlights}
                         type="color"
-                        onBlur={({target: {value}}) => setHighlights(value)}/> */}
-                    <CompactPicker
-                        width={212}
-                        color={highlights}
-                        onChangeComplete={({hex}) => setHighlights(hex)}/>
+                        className="custom-color-input"
+                        onBlur={({target: {value}}) => setHighlights(value)}/>
                 </Col>
                 <Col>
                     <Form.Label>Shadows</Form.Label>
-                    {/* <Form.Control 
+                    <Form.Control 
                         defaultValue={shadows}
                         type="color"
-                        onBlur={({target: {value}}) => setShadows(value)}/> */}
-                    <CompactPicker
-                        width={212}
-                        color={shadows}
-                        onChangeComplete={({hex}) => setShadows(hex)}/>
+                        className="custom-color-input"
+                        onBlur={({target: {value}}) => setShadows(value)}/>
                 </Col>
             </Form.Row>
         </Form.Group>
@@ -133,12 +127,7 @@ const PopArt = ({context, image, onChange}) => {
                 className="custom-range"
                 onChange={({target: {value}}) => setRange(+value)}/>
         </Form.Group>
-        <Modal show={loading}>
-            <Modal.Body style={{textAlign: "center"}}>
-                <h5>Loading filter...</h5>
-                <Spinner variant="primary" animation="grow" />
-            </Modal.Body>
-        </Modal>
+        <LoadingModal show={loading} message="Running filter"/>
     </>)
 }
 
