@@ -25,9 +25,8 @@ const PopArt = ({context, image, onChange}) => {
 
     const renderFrame = frame => {
         const {canvas} = context;
-        const ar = frame.width / frame.height;
 
-        canvas.height = canvas.width / ar;
+        context.clearRect(0, 0, canvas.width, canvas.height);
 
         context.save();
         context.drawImage(frame, 0, 0, canvas.width, canvas.height);
@@ -71,12 +70,13 @@ const PopArt = ({context, image, onChange}) => {
 
         if(success) {
             // Await image load
-            let frames = await Promise.all(images);
+            let frames = await Promise.all(images),
+                {canvas} = context;
 
-            console.log({frames});
+            canvas.width = frames[0].width;
+            canvas.height = frames[0].height;
 
             setLoading(false);
-
             setFrames(frames);
         } else {
             setError(error);
