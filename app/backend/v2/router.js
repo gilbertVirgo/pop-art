@@ -34,7 +34,11 @@ const regulateFolderSize = () => {
                 "Maximum directory size reached. Removing file ",
                 oldest.split("/").slice(-2).join("/"));
 
-            await fs.remove(oldest);
+            try {
+                await fs.remove(oldest);
+            } catch(error) {
+                console.error(error.toString());
+            }
             tick();
         }
     })();
