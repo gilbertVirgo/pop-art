@@ -55,7 +55,6 @@ const App = () => {
 			</ButtonGroup>
 
 			<MetaTags>
-				<title>Page 1</title>
 				<meta property="og:title" content="Filter | Gilbert Virgo" />
 				<meta property="og:image" content={image} />
 			</MetaTags>
