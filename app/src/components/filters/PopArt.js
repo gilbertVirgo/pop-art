@@ -3,6 +3,7 @@ import Render from "./Render";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
 import LoadingModal from "../LoadingModal";
+import "../../functions";
 
 import axios from "axios";
 
@@ -22,7 +23,8 @@ const PopArt = ({context, image, onChange}) => {
     const [composite, setComposite] = useState(false);
 
     // frames.length - 1 to prevent out of bounds error
-    const getIndex = (range, frames) => Math.floor(range * ((frames.length - 1) / 100));
+    // and - 2 take composite image out of index
+    const getIndex = (range, frames) => Math.floor(range * ((frames.length - 2) / 100));
 
     const request = async () => {
         setLoading(true);
@@ -72,7 +74,7 @@ const PopArt = ({context, image, onChange}) => {
             let frame;
 
             if(!composite) frame = frames[getIndex(range, frames)];
-            else frame = frames[20];
+            else frame = frames[frames.length - 1]; // Composite frame
 
             onChange(Render.Frame({context, frame, highlights, shadows}));
         }

@@ -1,15 +1,25 @@
-export const hexToRGB = hex => {
-    let r = parseInt(hex.slice(1, 3), 16),
-        g = parseInt(hex.slice(3, 5), 16),
-        b = parseInt(hex.slice(5, 7), 16);
-    
-    return [r, g, b];
-}
+export default (function() {
+    Image.prototype.toDataURL = function(canvas) {
+        const context = canvas.getContext("2d");
+        canvas.width = this.width;
+        canvas.height = this.height;
+        context.drawImage(this, 0, 0, this.width, this.height);
+        
+        return canvas.toDataURL();
+    }
 
-export const applyColorToPixel = ({data, rgba, index}) => {
-    rgba.forEach((channel, delta) => {
-        data[index + delta] = channel;
-    });
+    File.prototype.getDimensions = function() {
+        return new Promise(resolve => {
+            const image = new Image();
 
-    return data;
-}
+            image.src = window.URL.createObjectURL(this);
+
+            image.onload = () => {
+                let {naturalWidth: width, naturalHeight: height} = image;
+                window.URL.revokeObjectURL(image.src);
+                
+                resolve({width, height});
+            }  
+        });
+    }
+})();
