@@ -1,11 +1,44 @@
 require("dotenv").config();
 
 const express = require("express");
-const fs = require("fs");
-const {spawn, exec} = require('child_process');
-const randomstring = require("randomstring");
+const {exec} = require("child_process");
+const fs = require("fs-extra");
+const path = require("path");
+
+const getFolderSize = require("get-folder-size");
 
 const router = express.Router();
+
+const regulateFolderSize = () => {
+    const tmp = `${__dirname}/../../tmp`;
+    const maxSize = (+process.env.MAX_FOLDER_SIZE * 1024 * 1024);
+
+    // Get files (and folders)
+    const files = fs.readdirSync(tmp);
+
+    // Sort files by date
+    const sorted = files.sort((a, b) => {
+        [a, b].map(folder => fs.statSync(path.join(tmp, folder)).birthtimeMs);
+        return a - b;
+    });
+
+    (async function tick() {
+        const tmpSize = await new Promise((resolve, reject) => 
+            getFolderSize(tmp, (error, size) => 
+                error ? reject(error) : resolve(size)));
+        
+        if(tmpSize > maxSize) {
+            const oldest = path.join(tmp, sorted.shift())
+
+            console.log(
+                "Maximum directory size reached. Removing file ",
+                oldest.split("/").slice(-2).join("/"));
+
+            await fs.remove(oldest);
+            tick();
+        }
+    })();
+}
 
 const runFilter = ({path, color1, color2}) => new Promise((resolve, reject) => {
     const cmd = exec(`java backend.v2.Threshold "${path}" "${color1}" "${color2}"`);
@@ -38,6 +71,8 @@ router.post("/popart", async ({files: {image}, body: {color1, color2}}, res) => 
         const id = await runFilter({path, color1, color2});
 
         res.json({success: true, id, length: process.env.FRAMES_LENGTH});
+
+        regulateFolderSize();
     } catch(error) {
         console.error(error.toString());
         res.json({success: false, error});

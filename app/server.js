@@ -5,7 +5,7 @@ const app = express();
 
 const fileUpload = require("express-fileupload");
 app.use(fileUpload({
-  limits: { fileSize: 12 * 1024 * 1024 }, // 12 MB
+  limits: { fileSize: +process.env.MAX_UPLOAD_SIZE * 1024 * 1024 },
   useTempFiles : true,
   tempFileDir : './tmp/'
 }));
