@@ -12,10 +12,10 @@ router.post(
 	"/popart",
 	async ({ files: { image }, body: { color1, color2 } }, res) => {
 		try {
-			const path = `${__dirname}/../../${image.tempFilePath}`;
+			const tempFilePath = `${__dirname}/../../${image.tempFilePath}`;
 
 			// Root folder
-			const id = await runFilter({ path, color1, color2 });
+			const id = await runFilter({ path: tempFilePath, color1, color2 });
 
 			res.json({ success: true, id, length: process.env.FRAMES_LENGTH });
 
