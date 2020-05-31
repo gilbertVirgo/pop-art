@@ -20,7 +20,15 @@ router.post(
 			res.json({ success: true, id, length: process.env.FRAMES_LENGTH });
 
 			// Remove files now we're done
-			await fs.rmdir(path);
+			try {
+				const tmpPath = path.join(__dirname, "..", "..", "tmp");
+
+				await fs.rmdir(tmpPath, { recursive: true });
+				await fs.mkdir(tmpPath);
+			} catch (error) {
+				console.log(error.toString());
+				// Don't resend headers on error
+			}
 		} catch (error) {
 			console.error(error.toString());
 			res.json({ success: false, error });
