@@ -21,10 +21,12 @@ router.post(
 
 			// Remove files now we're done
 			try {
+        setTimeout(() => {
 				const tmpPath = path.join(__dirname, "..", "..", "tmp");
 
 				await fs.rmdir(tmpPath, { recursive: true });
-				await fs.mkdir(tmpPath);
+        await fs.mkdir(tmpPath);
+      }, 60 * 1000);
 			} catch (error) {
 				console.log(error.toString());
 				// Don't resend headers on error
